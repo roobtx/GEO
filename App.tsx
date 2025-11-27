@@ -68,7 +68,8 @@ export default function App() {
     }
   };
 
-  const currentStep: SolveStep | undefined = solution?.steps[currentStepIndex];
+  // Safely access current step using optional chaining for the index access as well
+  const currentStep: SolveStep | undefined = solution?.steps?.[currentStepIndex];
 
   return (
     <div className="min-h-screen bg-[#121212] p-4 md:p-8 font-mono text-stone-200 selection:bg-amber-500/30 selection:text-amber-100 flex flex-col items-center">
