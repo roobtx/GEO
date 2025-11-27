@@ -11,9 +11,14 @@ interface VisualizerProps {
 const SceneContent: React.FC<VisualizerProps> = ({ data }) => {
   const groupRef = useRef<THREE.Group>(null);
   
+  // Safe access to arrays with optional chaining on data
+  const points = data?.points || [];
+  const lines = data?.lines || [];
+  const polygons = data?.polygons || [];
+  
   // Create a map of point labels to coordinates for easy line lookup
   const pointMap = new Map<string, [number, number, number]>();
-  data.points.forEach(p => pointMap.set(p.label || '', [p.x, p.y, p.z]));
+  points.forEach(p => pointMap.set(p.label || '', [p.x, p.y, p.z]));
 
   useFrame((state) => {
     if (groupRef.current) {
@@ -27,7 +32,7 @@ const SceneContent: React.FC<VisualizerProps> = ({ data }) => {
       <gridHelper args={[20, 20, 0x44403c, 0x292524]} position={[0, -5, 0]} />
       
       {/* Points */}
-      {data.points.map((point, idx) => (
+      {points.map((point, idx) => (
         <group key={`pt-${idx}`} position={[point.x, point.y, point.z]}>
           <Sphere args={[0.2, 16, 16]}>
             <meshStandardMaterial 
@@ -45,7 +50,7 @@ const SceneContent: React.FC<VisualizerProps> = ({ data }) => {
       ))}
 
       {/* Lines */}
-      {data.lines.map((line, idx) => {
+      {lines.map((line, idx) => {
         const start = pointMap.get(line.from);
         const end = pointMap.get(line.to);
         
@@ -73,8 +78,8 @@ const SceneContent: React.FC<VisualizerProps> = ({ data }) => {
       })}
       
       {/* Polygons (Transparent Faces) */}
-      {data.polygons && data.polygons.map((poly, idx) => {
-         const vertices = poly.points.map(label => pointMap.get(label)).filter(Boolean) as [number, number, number][];
+      {polygons.map((poly, idx) => {
+         const vertices = (poly.points || []).map(label => pointMap.get(label)).filter(Boolean) as [number, number, number][];
          if (vertices.length < 3) return null;
          
          const vectorPoints = vertices.map(v => new THREE.Vector3(...v));
@@ -120,7 +125,13 @@ export const Visualizer3D: React.FC<VisualizerProps> = ({ data }) => {
         <pointLight position={[10, 10, 10]} intensity={1} color="#f59e0b" />
         <pointLight position={[-10, -10, -10]} intensity={0.5} color="#0ea5e9" />
         
-        <SceneContent data={data} />
+        {data ? (
+            <SceneContent data={data} />
+        ) : (
+            <Html center>
+                <div className="text-stone-500 font-mono text-xs">VISUAL DATA MISSING</div>
+            </Html>
+        )}
         
         <OrbitControls makeDefault autoRotate autoRotateSpeed={0.5} />
       </Canvas>

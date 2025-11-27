@@ -135,8 +135,8 @@ export default function App() {
                 </div>
             )}
 
-            {/* Steps Navigation (Only if solved) */}
-            {status === AppStatus.SOLVED && solution && (
+            {/* Steps Navigation (Only if solved and steps exist) */}
+            {status === AppStatus.SOLVED && solution && solution.steps && solution.steps.length > 0 && (
                 <DataPanel title="Computation_Log" className="flex-1 flex flex-col gap-4 min-h-[300px]">
                     <div className="flex justify-between items-center mb-2 border-b border-stone-800 pb-2">
                         <span className="text-xs text-stone-500">STEP {currentStepIndex + 1} / {solution.steps.length}</span>
